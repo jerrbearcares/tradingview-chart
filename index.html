@@ -17,18 +17,35 @@
   </style>
 </head>
 <body>
-  <!-- TradingView Advanced Chart Widget BEGIN -->
+  <!-- TradingView Advanced Chart Widget Container -->
   <div class="tradingview-widget-container" style="height:100%;width:100%">
-    <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+    <!-- This div will host the widget -->
+    <div id="tradingview-advanced-widget" class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
     <div class="tradingview-widget-copyright">
       <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
         <span class="blue-text">Track all markets on TradingView</span>
       </a>
     </div>
-    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-    {
+  </div>
+
+  <script>
+    // Utility function to read URL parameters.
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+    // Read the symbol parameter; default to "NASDAQ:AAPL" if not provided.
+    var symbol = getParameterByName('symbol') || "NASDAQ:AAPL";
+
+    // Build the configuration object for the advanced chart widget.
+    var config = {
       "autosize": true,
-      "symbol": "NASDAQ:AAPL",
+      "symbol": symbol,
       "interval": "D",
       "timezone": "Etc/UTC",
       "theme": "dark",
@@ -39,39 +56,31 @@
       "allow_symbol_change": true,
       "calendar": false,
       "studies": [
-        "STD;Bollinger_Bands",
-        "STD;Smoothed%1Moving%1Average",
-        "STD;Smoothed%1Moving%1Average",
-        "STD;VWAP"
+        "STD;Bollinger_Bands",            // Bollinger Bands (default settings)
+        "STD;Smoothed%1Moving%1Average",   // Instance 0: For 5 SMA
+        "STD;Smoothed%1Moving%1Average",   // Instance 1: For 20 SMA
+        "STD;VWAP"                       // VWAP
       ],
       "studies_overrides": {
+        // Set the first Smoothed Moving Average to a period of 5
         "smoothed moving average.input.length": "5",
+        // Set the second instance (distinguished by .1) to a period of 20
         "smoothed moving average.input.length.1": "20"
       },
+      // Specify the container ID where the widget should be rendered.
+      "container_id": "tradingview-advanced-widget",
       "support_host": "https://www.tradingview.com"
-    }
-    </script>
-  </div>
-  <!-- TradingView Advanced Chart Widget END -->
-  
-  <script>
-    // OPTIONAL: Dynamic symbol override via URL parameter.
-    // If a URL parameter "symbol" is provided, reload the page with that symbol.
-    (function() {
-      function getParameterByName(name) {
-        name = name.replace(/[\[\]]/g, '\\$&');
-        var url = window.location.href;
-        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
-        var results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, ' '));
-      }
-      var symbol = getParameterByName('symbol');
-      if (symbol) {
-        window.location.href = window.location.pathname + "?symbol=" + symbol;
-      }
-    })();
+    };
+
+    // Create a new script element and set its innerHTML to the configuration JSON.
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    // Note: Many implementations use inline JSON within the script tag.
+    // Here we set innerHTML to our config so that the widget loads with our dynamic symbol.
+    script.innerHTML = JSON.stringify(config);
+    document.getElementsByTagName('head')[0].appendChild(script);
   </script>
 </body>
 </html>
