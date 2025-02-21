@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TradingView Chart with Custom Indicators</title>
+</head>
+<body>
+  <!-- TradingView Widget Container -->
+  <div class="tradingview-widget-container">
+    <div id="tradingview_chart"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+      // Utility to read URL parameters for dynamic symbol selection
+      function getParameterByName(name) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var url = window.location.href;
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+        var results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+      }
+      
+      // Default symbol is NASDAQ:AAPL; override if URL parameter 'symbol' is provided.
+      var symbol = getParameterByName('symbol') || "NASDAQ:AAPL";
+      
+      new TradingView.widget({
+        "width": 980,
+        "height": 610,
+        "symbol": symbol,
+        "interval": "D",
+        "timezone": "Etc/UTC",
+        "theme": "light",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_top_toolbar": true,
+        "save_image": false,
+        "studies": [
+          "Moving Average@tv-basicstudies",    // For 5 SMA
+          "Moving Average@tv-basicstudies",    // For 20 SMA
+          "VWAP@tv-basicstudies",              // VWAP
+          "Bollinger Bands@tv-basicstudies"    // Bollinger Bands (20 SMA, 2 dev)
+        ],
+        "studies_overrides": {
+          // Override for the first Moving Average (5 SMA)
+          "moving average.input.length": "5",
+          // Override for the second Moving Average (20 SMA)
+          "moving average.input.length.1": "20",
+          // Bollinger Bands settings: period 20 and standard deviation 2
+          "bollinger bands.input.length": "20",
+          "bollinger bands.input.stdDev": "2"
+        },
+        "container_id": "tradingview_chart"
+      });
+    </script>
+  </div>
+</body>
+</html>
